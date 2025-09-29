@@ -1,0 +1,165 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}Track Your Service | MechOnGO{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    .gradient-bg {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3dfe2 100%);
+    }
+    .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .modal-animation {
+        animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .leaflet-container {
+        height: 400px;
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen gradient-bg py-12 px-4 sm:px-6 lg:px-8 animate__animated animate__fadeIn">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-teal-800">
+            {% if is_mechanic %}Track Your Active Jobs{% else %}Track Your Services{% endif %}
+        </h1>
+
+        {% if active_jobs %}
+            <div class="space-y-8">
+                {% for job in active_jobs %}
+                    <div class="bg-white rounded-2xl shadow-lg card-hover p-6 animate__animated animate__fadeInUp">
+                        <h3 class="text-xl font-semibold text-teal-800 mb-2">{{ job.service_request.issue_description }}</h3>
+                        <p class="text-gray-600 mb-2">
+                            Mechanic: {% if job.mechanic %}{{ job.mechanic.get_full_name }}{% else %}Not assigned{% endif %}
+                        </p>
+                        <p class="text-gray-600 mb-4">
+                            Status: <span class="badge bg-blue-100 text-blue-800">{{ job.get_status_display }}</span>
+                        </p>
+
+                        {% if is_mechanic and job.status == 'en_route' %}
+                            <button id="stop-sharing-{{ job.id }}" class="mb-4 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition card-hover" data-job-id="{{ job.id }}">
+                                Stop Location Sharing
+                            </button>
+                        {% endif %}
+
+                        {% if job.otp_data %}
+                            <div class="bg-red-50 border-l-4 border-red-600 text-red-800 p-4 mb-4 rounded-lg card-hover" role="alert">
+                                <p class="font-bold">Action Required</p>
+                                <p>OTP: <span class="font-mono">{{ job.otp_data.otp }}</span> (Share with {% if is_mechanic %}customer{% else %}mechanic{% endif %} to {{ job.otp_data.action }} the job)</p>
+                            </div>
+                        {% endif %}
+
+                        <div id="map-{{ job.id }}" class="w-full h-96"></div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-16 bg-white rounded-2xl shadow-lg card-hover max-w-2xl mx-auto p-10 animate__animated animate__fadeInUp">
+                <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <h3 class="mt-4 text-lg font-medium text-teal-800">No Active Services to Track</h3>
+                <p class="mt-1 text-sm text-gray-600">
+                    {% if is_mechanic %}You have no active jobs to track.{% else %}You have no active services to track.{% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    {% for job in active_jobs %}
+        (function() {
+            // Default to a central location (Chennai, India) if no coordinates are available
+            const initialLat = {{ job.mechanic_lat|default:"13.0827" }};
+            const initialLng = {{ job.mechanic_lng|default:"80.2707" }};
+            const map = L.map('map-{{ job.id }}').setView([initialLat, initialLng], 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            let marker = null;
+
+            // Connect to WebSocket using the job ID for a specific channel
+            const ws = new WebSocket('ws://' + window.location.host + '/ws/location/{{ job.id }}/');
+
+            ws.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                if (data.latitude && data.longitude) {
+                    const position = [data.latitude, data.longitude];
+                    if (!marker) {
+                        marker = L.marker(position).addTo(map);
+                        map.setView(position, 14);
+                    } else {
+                        marker.setLatLng(position);
+                    }
+                    map.panTo(position, { animate: true });
+                    console.log("Updated location for job {{ job.id }}:", position);
+                }
+            };
+
+            ws.onerror = function(e) { console.error("WebSocket error for job {{ job.id }}:", e); };
+            ws.onclose = function(e) { console.log("WebSocket for job {{ job.id }} closed."); };
+
+            // Handle stop sharing button
+            const stopSharingBtn = document.getElementById('stop-sharing-{{ job.id }}');
+            if (stopSharingBtn) {
+                stopSharingBtn.addEventListener('click', function() {
+                    const jobId = this.getAttribute('data-job-id');
+                    fetch('/api/stop-sharing/' + jobId + '/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            console.log('Stopped sharing location for job ' + jobId);
+                            ws.close();
+                            this.disabled = true;
+                            this.textContent = 'Location Sharing Stopped';
+                        }
+                    }).catch(error => console.error('Error stopping location sharing:', error));
+                });
+            }
+        })();
+    {% endfor %}
+});
+</script>
+{% endblock %}

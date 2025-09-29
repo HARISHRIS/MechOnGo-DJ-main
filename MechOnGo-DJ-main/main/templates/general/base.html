@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MechOnGO | Premium Automotive Services{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.7.0/dist/vanilla-tilt.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1d4ed8',
+                        secondary: '#f59e0b',
+                        dark: '#0f172a',
+                        neon: '#60a5fa',
+                    },
+                    boxShadow: {
+                        neon: '0 0 15px rgba(96, 165, 250, 0.5)',
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+        .parallax-image img {
+            transition: transform 0.3s ease;
+        }
+        .parallax-image:hover img {
+            transform: scale(1.05);
+        }
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        #mobile-menu.active {
+            transform: translateX(0);
+        }
+        .logo-img {
+            transition: filter 0.3s ease;
+        }
+        .navbar-light .logo-img {
+            filter: brightness(0);
+        }
+        .navbar-dark .logo-img {
+            filter: brightness(1000%) invert(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+    <!-- Navigation - Glassmorphic with Dynamic Color -->
+    <nav id="navbar" class="fixed top-0 left-0 w-full z-50 bg-gray-100/90 backdrop-blur-md border-b border-gray-300 text-dark navbar-light transition-all duration-300">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="{% url 'home' %}" class="text-2xl font-bold flex items-center">
+                <img src="{% static 'img/mechonGO.png' %}" alt="MechOnGO Logo" class="mr-2 logo-img" style="height: 50px;">
+            </a>
+            <div class="hidden md:flex space-x-8">
+                {% if user.is_authenticated %}
+                    {% if user.profile.is_admin %}
+                        <a href="#" class="hover:text-neon transition duration-300 nav-link">Admin Dashboard</a>
+                    {% elif user.profile.is_mechanic %}
+                        <a href="{% url 'mechanic_dashboard' %}" class="hover:text-neon transition duration-300 nav-link">Mechanic Dashboard</a>
+                        <a href="{% url 'mechanic_profile' %}" class="hover:text-neon transition duration-300 nav-link">Profile</a>
+                    {% else %}
+                        <a href="{% url 'customer_dashboard' %}" class="hover:text-neon transition duration-300 nav-link">Dashboard</a>
+                        <a href="{% url 'customer_profile' %}" class="hover:text-neon transition duration-300 nav-link">Profile</a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}" class="hover:text-neon transition duration-300 nav-link">Logout</a>
+                {% else %}
+                    <a href="{% url 'about' %}" class="hover:text-neon transition duration-300 nav-link">About</a>
+                    <a href="{% url 'services' %}" class="hover:text-neon transition duration-300 nav-link">Service</a>
+                    <a href="{% url 'team' %}" class="hover:text-neon transition duration-300 nav-link">Team</a>
+                    <a href="{% url 'login' %}" class="hover:text-neon transition duration-300 nav-link">Login</a>
+                    <a href="{% url 'signup' %}" class="hover:text-neon transition duration-300 nav-link">Sign Up</a>
+                {% endif %}
+            </div>
+            <button class="md:hidden focus:outline-none" id="mobile-menu-button">
+                <i class="fas fa-bars text-2xl nav-icon"></i>
+            </button>
+        </div>
+        <div class="md:hidden fixed top-0 right-0 h-full w-3/4 bg-gray-100/90 backdrop-blur-md text-dark px-6 py-4 hidden" id="mobile-menu">
+            <button class="mb-4 focus:outline-none" id="close-menu-button">
+                <i class="fas fa-times text-2xl nav-icon"></i>
+            </button>
+            {% if user.is_authenticated %}
+                {% if user.profile.is_admin %}
+                    <a href="#" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Admin Dashboard</a>
+                {% elif user.profile.is_mechanic %}
+                    <a href="{% url 'mechanic_dashboard' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Mechanic Dashboard</a>
+                    <a href="{% url 'mechanic_profile' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Profile</a>
+                {% else %}
+                    <a href="{% url 'customer_dashboard' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Dashboard</a>
+                    <a href="{% url 'customer_profile' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Profile</a>
+                {% endif %}
+                <a href="{% url 'logout' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Logout</a>
+            {% else %}
+                <a href="{% url 'about' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">About</a>
+                <a href="{% url 'services' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Service</a>
+                <a href="{% url 'team' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Team</a>
+                <a href="{% url 'login' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Login</a>
+                <a href="{% url 'signup' %}" class="block py-3 text-lg hover:text-neon transition duration-300 nav-link">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="pt-20">
+        {% block content %}
+        {% endblock %}
+    </main>
+    {% block footer %}
+    <!-- Footer - Minimalist with Neon Accents -->
+    <footer class="bg-dark text-white pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div>
+                    <h3 class="text-xl font-bold mb-6 flex items-center">
+                        <img src="{% static 'img/mechOngO-white.png' %}" alt="MechOnGO Logo" class="mr-2 logo-img" style="height: 50px;">
+                    </h3>
+                    <p class="text-gray-400 mb-6">Your trusted partner for premium vehicle maintenance and repair.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-neon transition duration-300 transform hover:scale-110">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-neon transition duration-300 transform hover:scale-110">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-neon transition duration-300 transform hover:scale-110">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-neon transition duration-300 transform hover:scale-110">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-6">Quick Links</h3>
+                    <ul class="space-y-3">
+                        <li><a href="{% url 'about' %}" class="text-gray-400 hover:text-neon transition duration-300">About Us</a></li>
+                        <li><a href="{% url 'services' %}" class="text-gray-400 hover:text-neon transition duration-300">Our Services</a></li>
+                        <li><a href="{% url 'team' %}" class="text-gray-400 hover:text-neon transition duration-300">Our Team</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-neon transition duration-300">Testimonials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-neon transition duration-300">Blog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-6">Services</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-neon transition duration-300">Oil Change</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-neon transition duration-300">Brake Services</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-neon transition duration-300">Engine Repair</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-neon transition duration-300">Transmission</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-neon transition duration-300">Diagnostics</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-6">Contact Us</h3>
+                    <address class="text-gray-400 not-italic space-y-3">
+                        <p class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-neon"></i>
+                            <span>29 Karur<br>City</span>
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-phone mr-3 text-neon"></i>
+                            <a href="tel:+1234567890" class="hover:text-neon transition duration-300">(123) 456-7890</a>
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-envelope mr-3 text-neon"></i>
+                            <a href="mailto:support@autocarepro.com" class="hover:text-neon transition duration-300">support@autocarepro.com</a>
+                        </p>
+                        <p class="flex items-center">
+                            <i class="fas fa-clock mr-3 text-neon"></i>
+                            <span>Mon-Fri: 8AM - 6PM<br>Sat: 9AM - 4PM</span>
+                        </p>
+                    </address>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-500 text-sm mb-4 md:mb-0">© 2025 MechOnGO. All rights reserved.</p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="text-gray-500 hover:text-neon text-sm transition duration-300">Privacy Policy</a>
+                        <a href="#" class="text-gray-500 hover:text-neon text-sm transition duration-300">Terms of Service</a>
+                        <a href="#" class="text-gray-500 hover:text-neon text-sm transition duration-300">Sitemap</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock footer %}
+    <script>
+        // Mobile Menu Toggle
+        const menuButton = document.getElementById('mobile-menu-button');
+        const closeButton = document.getElementById('close-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('active');
+        });
+        closeButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+            setTimeout(() => mobileMenu.classList.add('hidden'), 300);
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const navIcons = document.querySelectorAll('.nav-icon');
+            if (window.scrollY > 50) {
+                navbar.classList.remove('bg-gray-100/90', 'border-gray-300', 'navbar-light');
+                navbar.classList.add('bg-dark/90', 'border-dark/20', 'navbar-dark', 'shadow-neon');
+                mobileMenu.classList.remove('bg-gray-100/90', 'text-dark');
+                mobileMenu.classList.add('bg-dark/90', 'text-white');
+                navLinks.forEach(link => {
+                    link.classList.remove('text-dark');
+                    link.classList.add('text-white');
+                });
+                navIcons.forEach(icon => {
+                    icon.classList.remove('text-dark');
+                    icon.classList.add('text-white');
+                });
+            } else {
+                navbar.classList.remove('bg-dark/90', 'border-dark/20', 'navbar-dark', 'shadow-neon');
+                navbar.classList.add('bg-gray-100/90', 'border-gray-300', 'navbar-light');
+                mobileMenu.classList.remove('bg-dark/90', 'text-white');
+                mobileMenu.classList.add('bg-gray-100/90', 'text-dark');
+                navLinks.forEach(link => {
+                    link.classList.remove('text-white');
+                    link.classList.add('text-dark');
+                });
+                navIcons.forEach(icon => {
+                    icon.classList.remove('text-white');
+                    icon.classList.add('text-dark');
+                });
+            }
+        });
+
+        // 3D Tilt Effect for Service Cards
+        VanillaTilt.init(document.querySelectorAll('.tilt-card'), {
+            max: 15,
+            speed: 400,
+            glare: true,
+            'max-glare': 0.3,
+        });
+    </script>
+</body>
+</html>

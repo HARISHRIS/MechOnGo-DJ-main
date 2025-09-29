@@ -1,0 +1,243 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}Mechanic Profile | MechOnGO{% endblock %}
+{% block footer %}{% endblock %}
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    .gradient-bg {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    .error-message {
+        transition: opacity 0.3s ease;
+        opacity: 0;
+    }
+    .error-message.show {
+        opacity: 1;
+    }
+    .avatar-preview {
+        transition: opacity 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="min-h-screen gradient-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 animate__animated animate__fadeIn">
+    {% if user.is_authenticated and user.profile.is_mechanic %}
+        <div class="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-lg w-full max-w-2xl mx-6 border border-gray-200/50">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <img src="{% static 'img/mechonGO.png' %}" alt="MechOnGO Logo" class="h-12 mx-auto mb-4 logo-img">
+                <h1 class="text-3xl font-bold text-teal-800 tracking-tight">Update Your Profile</h1>
+                <p class="mt-2 text-sm text-gray-600">Manage your personal and professional details</p>
+                {% if not user.profile.is_approved %}
+                    <p class="mt-3 text-sm text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full inline-block">Your account is pending approval by an admin.</p>
+                {% endif %}
+            </div>
+
+            <!-- Form -->
+            <form method="POST" action="{% url 'mechanic_profile' %}" enctype="multipart/form-data" id="profile-form" class="space-y-6">
+                {% csrf_token %}
+
+                {% if form.errors or form.non_field_errors %}
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <p>{{ field.label }}: {{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Username -->
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
+                    <input type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" value="{{ form.username.value|default_if_none:'' }}" class="w-full px-4 py-3 border {% if form.username.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-400" placeholder="Your username" required>
+                    <p class="mt-1 text-xs text-gray-500">Use letters, numbers, or @/./+/-/_ only</p>
+                    <div id="username-error" class="error-message text-red-600 text-xs mt-1"></div>
+                </div>
+
+                <!-- First Name & Last Name -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
+                        <input type="text" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" value="{{ form.first_name.value|default_if_none:'' }}" class="w-full px-4 py-3 border {% if form.first_name.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-400" placeholder="John" required>
+                    </div>
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
+                        <input type="text" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" value="{{ form.last_name.value|default_if_none:'' }}" class="w-full px-4 py-3 border {% if form.last_name.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-400" placeholder="Doe" required>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                    <input type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" value="{{ form.email.value|default_if_none:'' }}" class="w-full px-4 py-3 border {% if form.email.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-400" placeholder="you@example.com" required>
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                    <input type="tel" id="{{ form.phone.id_for_label }}" name="{{ form.phone.name }}" value="{{ form.phone.value|default_if_none:'' }}" class="w-full px-4 py-3 border {% if form.phone.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-400" placeholder="+91 9876543210" required>
+                    <p class="mt-1 text-xs text-gray-500">Format: +<country code> <10 digits>, e.g., +91 9876543210</p>
+                    <div id="phone-error" class="error-message text-red-600 text-xs mt-1"></div>
+                </div>
+
+                <!-- Avatar -->
+                <div>
+                    <label for="{{ form.avatar.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Profile Picture</label>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            {% if user.profile.avatar %}
+                                <img id="avatar-preview" src="{{ user.profile.avatar.url }}" alt="Current Avatar" class="h-16 w-16 rounded-full object-cover avatar-preview">
+                            {% else %}
+                                <div id="avatar-preview" class="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 avatar-preview">
+                                    <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" id="{{ form.avatar.id_for_label }}" name="{{ form.avatar.name }}" accept="image/*" class="w-full px-4 py-3 border {% if form.avatar.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900">
+                            <p class="mt-1 text-xs text-gray-500">Upload a new image (optional, JPG/PNG, max 2MB)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Specialization -->
+                <div>
+                    <label for="{{ form.specialization.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Specialization</label>
+                    <select id="{{ form.specialization.id_for_label }}" name="{{ form.specialization.name }}" class="w-full px-4 py-3 border {% if form.specialization.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900" required>
+                        <option value="">Select your specialization</option>
+                        <option value="general" {% if form.specialization.value == 'general' %}selected{% endif %}>General Mechanic</option>
+                        <option value="engine" {% if form.specialization.value == 'engine' %}selected{% endif %}>Engine Specialist</option>
+                        <option value="electrical" {% if form.specialization.value == 'electrical' %}selected{% endif %}>Electrical Systems</option>
+                        <option value="brakes" {% if form.specialization.value == 'brakes' %}selected{% endif %}>Brakes & Suspension</option>
+                        <option value="diagnostics" {% if form.specialization.value == 'diagnostics' %}selected{% endif %}>Diagnostics</option>
+                    </select>
+                </div>
+
+                <!-- Years of Experience -->
+                <div>
+                    <label for="{{ form.years_of_experience.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Years of Experience</label>
+                    <input type="number" id="{{ form.years_of_experience.id_for_label }}" name="{{ form.years_of_experience.name }}" value="{{ form.years_of_experience.value|default_if_none:'' }}" min="0" max="50" class="w-full px-4 py-3 border {% if form.years_of_experience.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-400" placeholder="5" required>
+                </div>
+
+                <!-- Certifications -->
+                <div>
+                    <label for="{{ form.certifications.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Certifications (Optional)</label>
+                    <textarea id="{{ form.certifications.id_for_label }}" name="{{ form.certifications.name }}" class="w-full px-4 py-3 border {% if form.certifications.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-400" placeholder="ASE Certified, etc." rows="3">{{ form.certifications.value|default_if_none:'' }}</textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full flex items-center justify-center px-6 py-3 text-base font-medium rounded-xl text-white bg-teal-600 hover:bg-teal-700 transition card-hover">
+                    <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Update Profile
+                </button>
+
+                <!-- Back to Dashboard -->
+                <div class="text-center mt-6">
+                    <a href="{% url 'mechanic_dashboard' %}" class="text-teal-600 hover:text-teal-800 text-sm font-medium transition">Back to Dashboard</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- JavaScript -->
+        <script>
+            // Phone Validation
+            const phoneInput = document.querySelector('#{{ form.phone.id_for_label }}');
+            const phoneError = document.querySelector('#phone-error');
+            phoneInput.addEventListener('input', function() {
+                const regex = /^\+\d{1,3}\s?\d{10}$/;
+                if (!regex.test(this.value) && this.value !== '') {
+                    phoneError.textContent = 'Phone number must be in format: +91 9876543210';
+                    phoneError.classList.add('show');
+                    this.classList.add('border-red-600');
+                    this.classList.remove('border-gray-300');
+                } else {
+                    phoneError.textContent = '';
+                    phoneError.classList.remove('show');
+                    this.classList.remove('border-red-600');
+                    this.classList.add('border-gray-300');
+                }
+            });
+
+            // Username Validation
+            const usernameInput = document.querySelector('#{{ form.username.id_for_label }}');
+            const usernameError = document.querySelector('#username-error');
+            usernameInput.addEventListener('input', function() {
+                const regex = /^[\w.@+-]+$/;
+                if (!regex.test(this.value)) {
+                    usernameError.textContent = 'Username can only contain letters, numbers, and @/./+/-/_ characters.';
+                    usernameError.classList.add('show');
+                    this.classList.add('border-red-600');
+                    this.classList.remove('border-gray-300');
+                } else {
+                    usernameError.textContent = '';
+                    usernameError.classList.remove('show');
+                    this.classList.remove('border-red-600');
+                    this.classList.add('border-gray-300');
+                }
+            });
+
+            // Avatar Preview
+            const avatarInput = document.querySelector('#{{ form.avatar.id_for_label }}');
+            const avatarPreview = document.querySelector('#avatar-preview');
+            avatarInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        avatarPreview.src = e.target.result;
+                        avatarPreview.classList.add('h-16', 'w-16', 'rounded-full', 'object-cover');
+                        avatarPreview.classList.remove('bg-gray-200', 'flex', 'items-center', 'justify-center');
+                        avatarPreview.style.opacity = '0';
+                        setTimeout(() => {
+                            avatarPreview.style.opacity = '1';
+                        }, 100);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+    {% else %}
+        <div class="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-lg w-full max-w-md mx-6 border border-gray-200/50 text-center">
+            <img src="{% static 'img/mechonGO.png' %}" alt="MechOnGO Logo" class="h-12 mx-auto mb-4 logo-img">
+            <h2 class="text-2xl font-bold text-teal-800 mb-4">Access Denied</h2>
+            <p class="text-gray-600 mb-6 text-sm">You must be logged in as a mechanic to view this page.</p>
+            <div class="flex justify-center space-x-4">
+                <a href="{% url 'login' %}" class="inline-flex items-center px-6 py-3 text-base font-medium rounded-xl text-white bg-teal-600 hover:bg-teal-700 transition card-hover">
+                    <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14" />
+                    </svg>
+                    Log In
+                </a>
+                <a href="{% url 'signup' %}" class="inline-flex items-center px-6 py-3 text-base font-medium rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 transition">
+                    <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    Sign Up
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

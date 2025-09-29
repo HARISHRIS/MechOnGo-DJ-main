@@ -1,0 +1,163 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}Sign Up | MechOnGO{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<section class="min-h-screen flex items-center justify-center bg-gray-50 py-20">
+    <div class="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-lg w-full max-w-md mx-6 border border-gray-200/50">
+        <div class="text-center mb-8">
+            <img src="{% static 'img/mechonGO.png' %}" alt="MechOnGO Logo" class="h-12 mx-auto mb-4 logo-img">
+            <h1 class="text-2xl font-bold text-dark">
+                {% if is_mechanic_signup %}
+                    Create Your Mechanic Account
+                {% else %}
+                    Create Your Account
+                {% endif %}
+            </h1>
+            <p class="text-gray-600">
+                {% if is_mechanic_signup %}
+                    Join our network of professional mechanics
+                {% else %}
+                    Join thousands of satisfied customers
+                {% endif %}
+            </p>
+            
+            <!-- Toggle between user and mechanic signup -->
+            <div class="mt-4 flex justify-center">
+                <div class="inline-flex rounded-md shadow-sm" role="group">
+                    <a href="{% url 'signup' %}" class="px-4 py-2 text-sm font-medium rounded-l-lg border {% if not is_mechanic_signup %}bg-primary text-white{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+                        I'm a Customer
+                    </a>
+                    <a href="{% url 'mechanic_signup' %}" class="px-4 py-2 text-sm font-medium rounded-r-lg border {% if is_mechanic_signup %}bg-primary text-white{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+                        I'm a Mechanic
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="{% if is_mechanic_signup %}{% url 'mechanic_signup' %}{% else %}{% url 'signup' %}{% endif %}" id="signup-form">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="mb-4 text-red-600 text-sm">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p>{{ field.label }}: {{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="mb-4">
+                <label for="{{ form.username.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Username</label>
+                <input type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" value="{{ form.username.value|default_if_none:'' }}" class="w-full px-4 py-2 border {% if form.username.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="Your username" required>
+                <p class="mt-1 text-xs text-gray-500">Use letters, numbers, or @/./+/-/_ only</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">First Name</label>
+                    <input type="text" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" value="{{ form.first_name.value|default_if_none:'' }}" class="w-full px-4 py-2 border {% if form.first_name.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="John" required>
+                </div>
+                <div>
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Last Name</label>
+                    <input type="text" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" value="{{ form.last_name.value|default_if_none:'' }}" class="w-full px-4 py-2 border {% if form.last_name.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="Doe" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.email.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
+                <input type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" value="{{ form.email.value|default_if_none:'' }}" class="w-full px-4 py-2 border {% if form.email.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="you@example.com" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.phone.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Phone Number</label>
+                <input type="tel" id="{{ form.phone.id_for_label }}" name="{{ form.phone.name }}" value="{{ form.phone.value|default_if_none:'' }}" class="w-full px-4 py-2 border {% if form.phone.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="+1 (555) 123-4567" required>
+            </div>
+
+            {% if is_mechanic_signup %}
+                <!-- Mechanic-specific fields -->
+                <div class="mb-4">
+                    <label for="{{ form.specialization.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Specialization</label>
+                    <select id="{{ form.specialization.id_for_label }}" name="{{ form.specialization.name }}" class="w-full px-4 py-2 border {% if form.specialization.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" required>
+                        <option value="">Select your specialization</option>
+                        <option value="general">General Mechanic</option>
+                        <option value="engine">Engine Specialist</option>
+                        <option value="electrical">Electrical Systems</option>
+                        <option value="brakes">Brakes & Suspension</option>
+                        <option value="diagnostics">Diagnostics</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.years_of_experience.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Years of Experience</label>
+                    <input type="number" id="{{ form.years_of_experience.id_for_label }}" name="{{ form.years_of_experience.name }}" value="{{ form.years_of_experience.value|default_if_none:'' }}" min="0" max="50" class="w-full px-4 py-2 border {% if form.years_of_experience.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="5" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.certifications.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Certifications (Optional)</label>
+                    <textarea id="{{ form.certifications.id_for_label }}" name="{{ form.certifications.name }}" class="w-full px-4 py-2 border {% if form.certifications.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="ASE Certified, etc." rows="2">{{ form.certifications.value|default_if_none:'' }}</textarea>
+                </div>
+            {% endif %}
+
+            <div class="mb-4">
+                <label for="{{ form.password1.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+                <input type="password" id="{{ form.password1.id_for_label }}" name="{{ form.password1.name }}" class="w-full px-4 py-2 border {% if form.password1.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="••••••••" required>
+                <p class="mt-1 text-xs text-gray-500">At least 8 characters, not too common (e.g., avoid "password123")</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="{{ form.password2.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Confirm Password</label>
+                <input type="password" id="{{ form.password2.id_for_label }}" name="{{ form.password2.name }}" class="w-full px-4 py-2 border {% if form.password2.errors %}border-red-600{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="••••••••" required>
+            </div>
+
+            <div class="mb-6">
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="terms" type="checkbox" name="terms" class="h-4 w-4 text-neon focus:ring-neon border-gray-300 rounded" {% if form.terms.value %}checked{% endif %} required>
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="terms" class="font-medium text-gray-700">I agree to the <a href="#" class="text-primary hover:text-neon">Terms of Service</a> and <a href="#" class="text-primary hover:text-neon">Privacy Policy</a></label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 shadow-neon hover:shadow-lg">
+                {% if is_mechanic_signup %}
+                    Register as Mechanic
+                {% else %}
+                    Create Account
+                {% endif %}
+            </button>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">Already have an account? <a href="{% url 'login' %}" class="text-primary hover:text-neon">Log in</a></p>
+            </div>
+        </form>
+
+        <script>
+            // Client-side username validation
+            const usernameInput = document.querySelector('#{{ form.username.id_for_label }}');
+            usernameInput.addEventListener('input', function() {
+                const regex = /^[\w.@+-]+$/;
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-red-600 text-xs mt-1';
+                if (!regex.test(this.value)) {
+                    errorDiv.textContent = 'Username can only contain letters, numbers, and @/./+/-/_ characters.';
+                    this.classList.add('border-red-600');
+                } else {
+                    errorDiv.textContent = '';
+                    this.classList.remove('border-red-600');
+                }
+                const existingError = this.parentNode.querySelector('.text-red-600');
+                if (existingError) existingError.remove();
+                this.parentNode.appendChild(errorDiv);
+            });
+        </script>
+    </div>
+</section>
+{% endblock %}

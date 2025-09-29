@@ -1,0 +1,158 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}Our Services | MechOnGO{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gray-900 text-white overflow-hidden h-[80vh] min-h-[600px]">
+    <div class="absolute inset-0 z-0">
+        <video autoplay muted loop playsinline class="w-full h-full object-cover object-center" poster="{% static 'img/fallback.jpg' %}">
+            <source src="{% static 'video/service.mp4' %}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-900/30 to-gray-900/20 z-10"></div>
+    </div>
+    <div class="container mx-auto px-4 h-full flex items-center relative z-20">
+        <div class="max-w-3xl animate-fade-in">
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+                Comprehensive Automotive Services
+            </h1>
+            <p class="text-xl md:text-2xl mb-10 text-blue-100 font-light max-w-2xl">
+                From routine maintenance to complex repairs, we deliver factory-level service for all makes and models.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{% url 'signup' %}" 
+                   class="bg-primary hover:bg-blue-600 text-white font-semibold py-4 px-10 rounded-lg transition-all duration-300 text-center shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Book a Service
+                </a>
+                <a href="#repair-packages" 
+                   class="bg-transparent hover:bg-white/10 border-2 border-white/40 text-white font-semibold py-4 px-10 rounded-lg transition-all duration-300 text-center hover:border-white/60">
+                    View Packages <i class="fas fa-tools ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Services Section -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="inline-block px-4 py-2 text-sm font-semibold text-neon bg-neon/10 rounded-full mb-4">Our Services</span>
+            <h2 class="text-4xl font-bold text-dark mb-6">Tailored Solutions for Your Vehicle</h2>
+            <p class="text-xl text-gray-600">Explore our full range of automotive services designed to keep your car in top condition.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Service Card 1: Diagnostics -->
+            <div class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-500 tilt-card">
+                <div class="relative h-64 overflow-hidden rounded-t-2xl">
+                    <img src="https://www.valleychevy.com/wp-content/uploads/2021/12/What-is-a-Car-Diagnostic-Test.jpg" 
+                         alt="Precision Diagnostics" 
+                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="w-12 h-12 bg-neon/20 rounded-lg flex items-center justify-center mb-4 text-neon">
+                        <i class="fas fa-microchip text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3">Precision Diagnostics</h3>
+                    <p class="text-gray-600 mb-4">Advanced computerized diagnostics to accurately identify and resolve complex vehicle issues.</p>
+                    <a href="#" class="inline-flex items-center text-neon font-medium hover:text-blue-600 transition-colors duration-300">
+                        Learn More <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Service Card 2: Engine Services -->
+            <div class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-500 tilt-card">
+                <div class="relative h-64 overflow-hidden rounded-t-2xl">
+                    <img src="https://springwoodmotorrepairs.com.au/images/services/tuneup-2.jpg" 
+                         alt="Engine Services" 
+                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="w-12 h-12 bg-neon/20 rounded-lg flex items-center justify-center mb-4 text-neon">
+                        <i class="fas fa-cogs text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3">Engine Services</h3>
+                    <p class="text-gray-600 mb-4">Complete engine maintenance, repair, and performance optimization services.</p>
+                    <a href="#" class="inline-flex items-center text-neon font-medium hover:text-blue-600 transition-colors duration-300">
+                        Learn More <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Service Card 3: Brake Systems -->
+            <div class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-500 tilt-card">
+                <div class="relative h-64 overflow-hidden rounded-t-2xl">
+                    <img src="https://th.bing.com/th/id/R.2ae60aca1569065389f4803de22b13f7?rik=ux1eDoD8%2byluzw&riu=http%3a%2f%2fwww.thecarguysgarage.com%2fwp-content%2fuploads%2f2016%2f08%2fbrakes.jpg&ehk=4%2f30GlhZWZ5dES9JOuoiK6cr3DVXrzNxucatrsWWaZQ%3d&risl=&pid=ImgRaw&r=0" 
+                         alt="Brake Systems" 
+                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="w-12 h-12 bg-neon/20 rounded-lg flex items-center justify-center mb-4 text-neon">
+                        <i class="fas fa-stop-circle text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3">Brake Systems</h3>
+                    <p class="text-gray-600 mb-4">Complete brake inspection, service, and repair using premium components.</p>
+                    <a href="#" class="inline-flex items-center text-neon font-medium hover:text-blue-600 transition-colors duration-300">
+                        Learn More <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Service Card 4: Oil Change -->
+            <div class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-500 tilt-card">
+                <div class="relative h-64 overflow-hidden rounded-t-2xl">
+                    <img src="https://tse3.mm.bing.net/th/id/OIP.jzDQOjk7FZynFnZbhoHBvwHaFH?rs=1&pid=ImgDetMain" 
+                         alt="Oil Change" 
+                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="w-12 h-12 bg-neon/20 rounded-lg flex items-center justify-center mb-4 text-neon">
+                        <i class="fas fa-oil-can text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3">Oil Change</h3>
+                    <p class="text-gray-600 mb-4">High-quality synthetic oils and filters to ensure engine longevity.</p>
+                    <a href="#" class="inline-flex items-center text-neon font-medium hover:text-blue-600 transition-colors duration-300">
+                        Learn More <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Service Card 5: Transmission -->
+            <div class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-500 tilt-card">
+                <div class="relative h-64 overflow-hidden rounded-t-2xl">
+                    <img src="https://woodiesautoservice.com/Files/Documents/AdobeStock_92040494.jpeg" 
+                         alt="Transmission" 
+                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="w-12 h-12 bg-neon/20 rounded-lg flex items-center justify-center mb-4 text-neon">
+                        <i class="fas fa-cog text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3">Transmission</h3>
+                    <p class="text-gray-600 mb-4">Expert transmission repair and maintenance for smooth performance.</p>
+                    <a href="#" class="inline-flex items-center text-neon font-medium hover:text-blue-600 transition-colors duration-300">
+                        Learn More <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-dark text-white">
+    <div class="container mx-auto px-6 text-center">
+        <h2 class="text-4xl font-bold mb-6">Ready to Experience Premium Service?</h2>
+        <p class="text-xl mb-8 max-w-2xl mx-auto text-gray-300">Schedule your appointment today and let us keep your vehicle in peak condition.</p>
+        <a href="{% url 'signup' %}" 
+           class="bg-primary hover:bg-blue-600 text-white font-semibold py-4 px-10 rounded-lg transition-all duration-300 shadow-lg hover:shadow-neon transform hover:scale-105">
+            Book Now
+        </a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('signup/', views.signup, name='signup'),
+    path('mechanic-signup/', views.mechanic_signup, name='mechanic_signup'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
+    path('services/', views.service, name='services'),
+    path('team/', views.team, name='team'),
+    path('mechanic/dashboard/', views.mechanic_dashboard, name='mechanic_dashboard'),
+    path('mechanic/service-requests/', views.service_requests, name='service_requests'),
+    path('mechanic/service-calendar/', views.service_calendar, name='service_calendar'),
+    path('mechanic/job-history/', views.job_history, name='job_history'),
+    path('mechanic/profile/', views.mechanic_profile, name='mechanic_profile'),
+    path('mechanic/accept-request/<int:request_id>/', views.accept_service_request, name='accept_service_request'),
+    path('mechanic/job/start/<int:service_request_id>/otp/', views.start_job_otp, name='start_job_otp'),
+    path('mechanic/job/complete/<int:service_request_id>/otp/', views.complete_job_otp, name='complete_job_otp'),
+    path('mechanic/job/verify/<int:service_request_id>/otp/', views.verify_otp, name='verify_otp'),
+    path('customer/dashboard/', views.customer_dashboard, name='customer_dashboard'),
+    path('customer/track-service/', views.track_service, name='track_service'),
+    path('customer/order-history/', views.order_history, name='order_history'),
+    path('customer/rate-service/', views.rate_service, name='rate_service'),
+    path('customer/book-service/', views.book_service, name='book_service'),
+    path('customer/booking-confirmation/<int:booking_id>/', views.booking_confirmation, name='booking_confirmation'),
+    path('customer/payment-billing/', views.payment_billing, name='payment_billing'),
+    path('customer/profile/', views.customer_profile, name='customer_profile'),
+    path('api/stop-location-sharing/', views.stop_location_sharing, name='stop_location_sharing'),
+]

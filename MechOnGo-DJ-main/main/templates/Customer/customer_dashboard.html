@@ -1,0 +1,461 @@
+{% extends 'general/base.html' %}
+{% load static dict_lookup %}
+
+{% block title %}MechOnGO | Customer Dashboard{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    .gradient-bg {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .modal-animation {
+        animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen gradient-bg py-12 px-4 sm:px-6 lg:px-8 animate__animated animate__fadeIn">
+    {% if user.is_authenticated and not user.profile.is_mechanic %}
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-teal-800 tracking-tight">Customer Dashboard</h1>
+                <p class="mt-3 text-lg text-gray-600">Welcome back, {{ user.first_name }}! Here's what's happening with your vehicles.</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-12">
+                <div class="bg-white rounded-2xl shadow-lg card-hover">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-600 rounded-lg p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10h6m-6 0H3m12 0h6" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <dt class="text-sm font-medium text-gray-500">Active Bookings</dt>
+                                <dd class="text-2xl font-semibold text-teal-800">{{ active_bookings }}</dd>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 rounded-b-2xl">
+                        <a href="{% url 'track_service' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                            View all
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg card-hover">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-green-600 rounded-lg p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <dt class="text-sm font-medium text-gray-500">Completed Services</dt>
+                                <dd class="text-2xl font-semibold text-teal-800">{{ completed_services }}</dd>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 rounded-b-2xl">
+                        <a href="{% url 'order_history' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                            View history
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg card-hover">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-yellow-600 rounded-lg p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <dt class="text-sm font-medium text-gray-500">Your Rating</dt>
+                                <dd class="text-2xl font-semibold text-teal-800">{{ average_rating }}/5.0</dd>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 rounded-b-2xl">
+                        <a href="{% url 'rate_service' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                            Give feedback
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg card-hover">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-purple-600 rounded-lg p-3">
+                                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <dt class="text-sm font-medium text-gray-500">Next Appointment</dt>
+                                <dd class="text-2xl font-semibold text-teal-800">
+                                    {% if next_appointment %}
+                                        {{ next_appointment|date:"M d" }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </dd>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 rounded-b-2xl">
+                        <a href="{% url 'book_service' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                            Book another
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Bookings -->
+            <div class="bg-white rounded-2xl shadow-lg mb-12">
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="text-2xl font-semibold text-teal-800">Current Bookings</h3>
+                    <p class="mt-2 text-sm text-gray-600">Your upcoming and ongoing service appointments.</p>
+                </div>
+                <div class="divide-y divide-gray-100" id="current-bookings-list">
+                    {% for booking in current_bookings %}
+                    <div class="p-6 hover:bg-gray-50 card-hover
+                        {% if booking.service_request.status == 'accepted' and booking.status == 'scheduled' %}
+                            border-l-4 border-blue-600
+                        {% elif booking.status == 'in_progress' %}
+                            border-l-4 border-yellow-600
+                        {% endif %}">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 mr-4">
+                                        {% if booking.mechanic and booking.mechanic.profile.avatar %}
+                                        <img class="h-12 w-12 rounded-full" src="{{ booking.mechanic.profile.avatar.url }}" alt="Mechanic Avatar">
+                                        {% else %}
+                                        <div class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                            <svg class="h-6 w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-medium text-teal-800">
+                                            {{ booking.service_request.issue_description|truncatechars:50 }}
+                                        </h4>
+                                        <div class="mt-2 space-y-1 text-sm text-gray-600">
+                                            <div class="flex items-center">
+                                                <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                                {% if booking.mechanic %}
+                                                    {{ booking.mechanic.get_full_name|default:"Not assigned" }}
+                                                {% else %}
+                                                    Mechanic: Not assigned
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex items-center">
+                                                <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                                {{ booking.start_time|date:"M d, Y" }}
+                                            </div>
+                                            <div class="flex items-center">
+                                                <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {{ booking.start_time|time:"h:i A" }} - {{ booking.end_time|time:"h:i A" }}
+                                            </div>
+                                        </div>
+                                        {% with otp_data=otp_mapping|lookup:booking.service_request.id %}
+                                            {% if otp_data %}
+                                                <p class="mt-2 text-sm text-red-600 font-medium" 
+                                                   data-otp="{{ otp_data.otp }}" 
+                                                   data-service-request-id="{{ booking.service_request.id }}" 
+                                                   data-issue="{{ booking.service_request.issue_description|truncatechars:50 }}" 
+                                                   data-mechanic="{% if booking.mechanic %}{{ booking.mechanic.get_full_name|default:'Not assigned' }}{% else %}Not assigned{% endif %}" 
+                                                   data-action-text="{{ otp_data.action }}">
+                                                    OTP: {{ otp_data.otp }} 
+                                                    (Share with mechanic to {{ otp_data.action }} the job)
+                                                    <br>
+                                                    Mechanic: {% if booking.mechanic %}{{ booking.mechanic.get_full_name|default:"Not assigned" }}{% else %}Not assigned{% endif %}
+                                                </p>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 sm:mt-0 sm:ml-4 flex flex-col sm:flex-row sm:items-center">
+                                <div class="mr-0 sm:mr-4 mb-2 sm:mb-0 flex items-center space-x-2">
+                                    {% if booking.service_request.status == 'accepted' and booking.status == 'scheduled' %}
+                                    <span class="badge bg-blue-100 text-blue-800">
+                                        <svg class="-ml-0.5 mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Accepted
+                                    </span>
+                                    {% endif %}
+                                    <span class="badge 
+                                        {% if booking.status == 'pending' %}bg-gray-100 text-gray-800
+                                        {% elif booking.status == 'scheduled' %}bg-blue-100 text-blue-800
+                                        {% elif booking.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-green-100 text-green-800{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <a href="{% url 'booking_confirmation' booking.service_request.id %}"
+                                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                                <span>
+                                    {{ booking.service_request.vehicle_make }} {{ booking.service_request.vehicle_model }} ({{ booking.service_request.vehicle_year }})
+                                    {% if booking.service_request.vehicle_license %}
+                                    • {{ booking.service_request.vehicle_license }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-6 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No current bookings</h3>
+                        <p class="mt-1 text-sm text-gray-600">Get started by scheduling a new service appointment.</p>
+                        <div class="mt-6">
+                            <a href="{% url 'book_service' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition">
+                                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Book Service
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Quick Actions Section -->
+            <div class="bg-white rounded-2xl shadow-lg">
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="text-2xl font-semibold text-teal-800">Quick Actions</h3>
+                    <p class="mt-2 text-sm text-gray-600">Manage your services easily.</p>
+                </div>
+                <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <a href="{% url 'book_service' %}" class="inline-flex items-center px-6 py-3 text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition card-hover">
+                        <svg class="h-6 w-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Book New Service
+                    </a>
+                    <a href="{% url 'track_service' %}" class="inline-flex items-center px-6 py-3 text-base font-medium rounded-xl text-white bg-green-600 hover:bg-green-700 transition card-hover">
+                        <svg class="h-6 w-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Track Active Services
+                    </a>
+                    <a href="{% url 'order_history' %}" class="inline-flex items-center px-6 py-3 text-base font-medium rounded-xl text-white bg-purple-600 hover:bg-purple-700 transition card-hover">
+                        <svg class="h-6 w-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                        View Order History
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- OTP Notification Modal -->
+        <div id="otpModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 modal-animation">
+                <div class="flex justify-between items-center p-6 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-teal-800">New OTP Generated</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="otpModalContent" class="p-6 text-sm text-gray-600 space-y-4">
+                    <!-- OTP details will be injected here by JavaScript -->
+                </div>
+                <div class="p-6 border-t border-gray-100 flex justify-end">
+                    <button id="dismissModal" class="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="max-w-md mx-auto text-center py-16 bg-white rounded-2xl shadow-lg">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-4 text-lg font-semibold text-teal-800">Access Restricted</h3>
+            <p class="mt-2 text-sm text-gray-600">You need to be logged in as a customer to view this dashboard.</p>
+            <div class="mt-6">
+                <a href="{% url 'login' %}?next={% url 'customer_dashboard' %}" class="inline-flex items-center px-6 py-3 text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition">
+                    Log In
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const otpModal = document.getElementById('otpModal');
+        if (!otpModal) return;
+
+        let currentOtpInfo = null;
+
+        const getSeenOtps = () => {
+            const seenOtps = localStorage.getItem('seenOtps');
+            return seenOtps ? JSON.parse(seenOtps) : [];
+        };
+
+        const saveSeenOtp = (otp, serviceRequestId) => {
+            if (!otp || !serviceRequestId) return;
+            const seenOtps = getSeenOtps();
+            if (!isOtpSeen(otp, serviceRequestId)) {
+                seenOtps.push({ otp, serviceRequestId });
+                while (seenOtps.length > 50) {
+                    seenOtps.shift();
+                }
+                localStorage.setItem('seenOtps', JSON.stringify(seenOtps));
+            }
+        };
+
+        const isOtpSeen = (otp, serviceRequestId) => {
+            const seenOtps = getSeenOtps();
+            return seenOtps.some(item => item.otp === otp && item.serviceRequestId === serviceRequestId);
+        };
+
+        const showOtpModal = (otp, serviceRequestId, issue, mechanic, actionText) => {
+            const modalContent = document.getElementById('otpModalContent');
+            currentOtpInfo = { otp, serviceRequestId };
+
+            modalContent.innerHTML = `
+                <p><strong class="text-teal-800">OTP:</strong> <span class="font-bold text-xl text-blue-600">${otp}</span></p>
+                <p><strong class="text-teal-800">Service Request:</strong> ${issue}</p>
+                <p><strong class="text-teal-800">Mechanic:</strong> ${mechanic}</p>
+                <p class="mt-3 p-3 bg-blue-50 rounded-lg"><strong class="text-teal-800">Action:</strong> Share this OTP with the mechanic to <strong class="uppercase text-blue-600">${actionText}</strong> the job.</p>
+            `;
+            otpModal.classList.remove('hidden');
+        };
+
+        const hideOtpModal = () => {
+            otpModal.classList.add('hidden');
+            currentOtpInfo = null;
+        };
+        
+        const dismissActiveModal = () => {
+            if (currentOtpInfo) {
+                saveSeenOtp(currentOtpInfo.otp, currentOtpInfo.serviceRequestId);
+            }
+            hideOtpModal();
+        };
+
+        document.getElementById('closeModal').addEventListener('click', dismissActiveModal);
+        document.getElementById('dismissModal').addEventListener('click', dismissActiveModal);
+
+        const processUnseenOtps = () => {
+            const otpElements = document.querySelectorAll('[data-otp]');
+            for (const element of otpElements) {
+                const { otp, serviceRequestId, issue, mechanic, actionText } = element.dataset;
+                if (!isOtpSeen(otp, serviceRequestId)) {
+                    showOtpModal(otp, serviceRequestId, issue, mechanic, actionText);
+                    break;
+                }
+            }
+        };
+
+        const pollForUpdates = () => {
+            if (!otpModal.classList.contains('hidden')) {
+                return;
+            }
+
+            fetch(window.location.href, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newBookingsList = doc.getElementById('current-bookings-list');
+                const currentBookingsList = document.getElementById('current-bookings-list');
+
+                if (newBookingsList && currentBookingsList) {
+                    if (newBookingsList.innerHTML !== currentBookingsList.innerHTML) {
+                        currentBookingsList.innerHTML = newBookingsList.innerHTML;
+                    }
+                    processUnseenOtps();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching updates:', error);
+            });
+        };
+
+        // Initial check on page load
+        processUnseenOtps();
+        // Poll for updates every 10 seconds
+        setInterval(pollForUpdates, 10000);
+    });
+</script>
+{% endblock %}

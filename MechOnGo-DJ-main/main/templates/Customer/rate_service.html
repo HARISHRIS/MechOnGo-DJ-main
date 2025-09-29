@@ -1,0 +1,158 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}Give Feedback | MechOnGO{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Rate Your Services</h1>
+        <p class="mt-2 text-sm text-gray-600">Your feedback helps us improve. Please rate your recent services.</p>
+    </div>
+
+    {% if messages %}
+        <div class="mb-6 space-y-3">
+            {% for message in messages %}
+                <div class="p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="space-y-6">
+        {% for job in completed_jobs %}
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden" id="job-card-{{ job.id }}">
+                <div class="px-6 py-4">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800">{{ job.service_request.issue_description }}</h4>
+                            <p class="text-sm text-gray-500">
+                                Completed on {{ job.completed_at|date:"F d, Y" }} by {{ job.mechanic.get_full_name }}
+                            </p>
+                        </div>
+                        {% if job.rating %}
+                            <div class="mt-3 md:mt-0 flex items-center">
+                                <span class="text-sm text-gray-600 mr-2">You rated:</span>
+                                <div class="flex items-center">
+                                    {% for i in "12345" %}
+                                        <i class="fas fa-star text-lg {% if job.rating >= i|add:0 %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                                    {% endfor %}
+                                    <span class="ml-2 font-bold text-gray-700">{{ job.rating|floatformat:1 }}/5</span>
+                                </div>
+                            </div>
+                        {% else %}
+                             <button type="button" class="mt-3 md:mt-0 toggle-rating-form-btn inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                                Rate This Service
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    {% if not job.rating %}
+                    <div class="rating-form-container hidden mt-6 border-t border-gray-200 pt-6">
+                        <form method="POST" action="{% url 'rate_service' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="job_id" value="{{ job.id }}">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                                <div class="star-rating flex items-center space-x-1" data-job-id="{{ job.id }}">
+                                    {% for i in "12345" %}
+                                    <label>
+                                        <input type="radio" name="rating" value="{{ i }}" class="sr-only" required>
+                                        <i class="fas fa-star text-2xl text-gray-300 cursor-pointer transition-colors duration-200"></i>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="comments-{{ job.id }}" class="block text-sm font-medium text-gray-700">Comments (optional)</label>
+                                <textarea id="comments-{{ job.id }}" name="comments" rows="3" placeholder="Tell us more about your experience..." class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                            </div>
+                            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700">
+                                Submit Feedback
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-16 bg-white rounded-lg shadow-md">
+                <h3 class="text-lg font-medium text-gray-900">No Services to Rate</h3>
+                <p class="mt-1 text-sm text-gray-500">You don't have any completed services yet.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Interactive Star Rating Logic ---
+    const allStarRatings = document.querySelectorAll('.star-rating');
+
+    allStarRatings.forEach(starContainer => {
+        const stars = starContainer.querySelectorAll('label i');
+        const radios = starContainer.querySelectorAll('input[type="radio"]');
+
+        stars.forEach((star, index) => {
+            star.addEventListener('mouseover', () => {
+                // Highlight stars up to the hovered one
+                for (let i = 0; i <= index; i++) {
+                    stars[i].classList.remove('text-gray-300');
+                    stars[i].classList.add('text-yellow-400');
+                }
+            });
+
+            star.addEventListener('mouseout', () => {
+                // Revert to selected state on mouse out
+                updateStars(starContainer);
+            });
+
+            star.addEventListener('click', () => {
+                // The radio button gets checked automatically by the label
+                updateStars(starContainer);
+            });
+        });
+
+        function updateStars(container) {
+            const checkedRadio = container.querySelector('input[type="radio"]:checked');
+            const rating = checkedRadio ? parseInt(checkedRadio.value, 10) : 0;
+            const allStars = container.querySelectorAll('label i');
+
+            allStars.forEach((s, i) => {
+                if (i < rating) {
+                    s.classList.remove('text-gray-300');
+                    s.classList.add('text-yellow-400');
+                } else {
+                    s.classList.remove('text-yellow-400');
+                    s.classList.add('text-gray-300');
+                }
+            });
+        }
+    });
+
+    // --- Toggle Rating Form Visibility ---
+    const toggleButtons = document.querySelectorAll('.toggle-rating-form-btn');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const formContainer = button.closest('.px-6.py-4').querySelector('.rating-form-container');
+            if (formContainer) {
+                formContainer.classList.toggle('hidden');
+                button.classList.add('hidden');
+            }
+        });
+    });
+
+    // --- Pre-select and open a job if ID is in URL ---
+    const jobToPreselectId = '{{ job_to_preselect }}';
+    if (jobToPreselectId) {
+        const cardToSelect = document.getElementById('job-card-' + jobToPreselectId);
+        if (cardToSelect) {
+            const button = cardToSelect.querySelector('.toggle-rating-form-btn');
+            if(button) button.click();
+            cardToSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}Our Team | MechOnGO{% endblock %}
+
+{% block content %}
+<section class="relative bg-gray-900 text-white overflow-hidden h-[80vh] min-h-[600px]">
+    <div class="absolute inset-0 z-0">
+        <video autoplay muted loop playsinline class="w-full h-full object-cover object-center" poster="{% static 'img/fallback.jpg' %}">
+            <source src="{% static 'video/team.mp4' %}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-900/30 to-gray-900/20 z-10"></div>
+    </div>
+    <div class="container mx-auto px-4 h-full flex items-center relative z-20">
+        <div class="max-w-3xl animate-fade-in">
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+                Meet Our Expert Team
+            </h1>
+            <p class="text-xl md:text-2xl mb-10 text-blue-100 font-light max-w-2xl">
+                Our certified technicians bring passion and expertise to every service, ensuring your vehicle is in the best hands.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{% url 'signup' %}" 
+                   class="bg-primary hover:bg-blue-600 text-white font-semibold py-4 px-10 rounded-lg transition-all duration-300 text-center shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Book a Service
+                </a>
+                <a href="#repair-packages" 
+                   class="bg-transparent hover:bg-white/10 border-2 border-white/40 text-white font-semibold py-4 px-10 rounded-lg transition-all duration-300 text-center hover:border-white/60">
+                    View Packages <i class="fas fa-tools ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Members Section -->
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="inline-block px-4 py-2 text-sm font-semibold text-neon bg-neon/10 rounded-full mb-4">Our Team</span>
+            <h2 class="text-4xl font-bold text-dark mb-6">The Heart of MechOnGO</h2>
+            <p class="text-xl text-gray-600">Our factory-trained professionals are dedicated to delivering exceptional service.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Team Member 1 -->
+            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 tilt-card">
+                <div class="relative h-64 overflow-hidden rounded-t-2xl">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.BcjQoAY1o3OjomqTchEShAHaE7?rs=1&pid=ImgDetMain" alt="John Doe" class="w-full h-full object-cover">
+                </div>
+                <div class="p-6 text-center">
+                    <h3 class="text-xl font-bold text-dark mb-2">John Doe</h3>
+                    <p class="text-gray-600 mb-4">Master Technician</p>
+                    <p class="text-gray-600 text-sm">ASE-certified with 15 years of experience in diagnostics and engine repair.</p>
+                </div>
+            </div>
+            <!-- Team Member 2 -->
+            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 tilt-card">
+                <div class="relative h-64 overflow-hidden rounded-t-2xl">
+                    <img src="https://th.bing.com/th/id/R.c189f84b16a8a3e1e1e230c4451d2a1f?rik=i%2fPk3Pc%2fGqF9Eg&riu=http%3a%2f%2fwww.r2rc.eu%2fwp-content%2fuploads%2f2016%2f05%2fMechanic.jpg&ehk=l9Q7BA01XGh8L6OWsUNenVyW4wl8JoJb004PVuInF9c%3d&risl=&pid=ImgRaw&r=0" alt="Jane Smith" class="w-full h-full object-cover">
+                </div>
+                <div class="p-6 text-center">
+                    <h3 class="text-xl font-bold text-dark mb-2">Jane Smith</h3>
+                    <p class="text-gray-600 mb-4">Service Manager</p>
+                    <p class="text-gray-600 text-sm">Ensures seamless customer experiences with a focus on transparency.</p>
+                </div>
+            </div>
+            <!-- Team Member 3 -->
+            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 tilt-card">
+                <div class="relative h-64 overflow-hidden rounded-t-2xl">
+                    <img src="https://cdn6.dissolve.com/p/D430_47_900/D430_47_900_1200.jpg" alt="Mike Johnson" class="w-full h-full object-cover">
+                </div>
+                <div class="p-6 text-center">
+                    <h3 class="text-xl font-bold text-dark mb-2">Mike Johnson</h3>
+                    <p class="text-gray-600 mb-4">Brake Specialist</p>
+                    <p class="text-gray-600 text-sm">Specializes in high-performance brake systems and safety inspections.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

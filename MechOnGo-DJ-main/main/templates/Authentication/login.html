@@ -1,0 +1,58 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}Login | MechOnGO{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<section class="min-h-screen flex items-center justify-center bg-gray-50 py-20">
+    <div class="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-lg w-full max-w-md mx-6 border border-gray-200/50">
+        <div class="text-center mb-8">
+            <img src="{% static 'img/mechonGO.png' %}" alt="MechOnGO Logo" class="h-12 mx-auto mb-4">
+            <h1 class="text-2xl font-bold text-dark">Welcome Back</h1>
+            <p class="text-gray-600">Login to manage your vehicle services</p>
+        </div>
+
+        {% if form.errors %}
+            <div class="mb-6 text-red-600 text-sm">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="{{ form.username.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Username or Email</label>
+                <input type="text" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="Username or email" required>
+            </div>
+
+            <div class="mb-6">
+                <label for="{{ form.password.id_for_label }}" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+                <input type="password" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neon focus:border-neon" placeholder="••••••••" required>
+            </div>
+
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <input id="remember-me" type="checkbox" name="remember" class="h-4 w-4 text-neon focus:ring-neon border-gray-300 rounded">
+                    <label for="remember-me" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                </div>
+                <a href="#" class="text-sm text-primary hover:text-neon">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 shadow-neon hover:shadow-lg">
+                Login
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-gray-600">Don't have an account? <a href="{% url 'signup' %}" class="text-primary hover:text-neon">Sign up</a></p>
+        </div>
+    </div>
+</section>
+{% endblock %}

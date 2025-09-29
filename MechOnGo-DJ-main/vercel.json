@@ -1,0 +1,17 @@
+{
+  "builds": [
+    {
+      "src": "MechOnGO/wsgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "runtime": "python3.12.8"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "MechOnGO/wsgi.py"
+    }
+  ]
+}

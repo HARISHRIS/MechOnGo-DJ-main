@@ -1,0 +1,88 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}About Us | MechOnGO{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gray-900 text-white overflow-hidden h-[80vh] min-h-[600px]">
+    <div class="absolute inset-0 z-0">
+        <video autoplay muted loop playsinline class="w-full h-full object-cover object-center" poster="{% static 'img/fallback.jpg' %}">
+            <source src="{% static 'video/about.mp4' %}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-900/30 to-gray-900/20 z-10"></div>
+    </div>
+    <div class="container mx-auto px-4 h-full flex items-center relative z-20">
+        <div class="max-w-3xl animate-fade-in">
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+                About MechOnGO
+            </h1>
+            <p class="text-xl md:text-2xl mb-10 text-blue-100 font-light max-w-2xl">
+                Delivering precision automotive care with a commitment to excellence.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{% url 'signup' %}" 
+                   class="bg-primary hover:bg-blue-600 text-white font-semibold py-4 px-10 rounded-lg transition-all duration-300 text-center shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Schedule Service
+                </a>
+                <a href="#services" 
+                   class="bg-transparent hover:bg-white/10 border-2 border-white/40 text-white font-semibold py-4 px-10 rounded-lg transition-all duration-300 text-center hover:border-white/60">
+                    Explore Services <i class="fas fa-chevron-down ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Our Story Section -->
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-6">
+        <div class="flex flex-col lg:flex-row items-center gap-12">
+            <div class="lg:w-1/2">
+                <span class="inline-block px-4 py-2 text-sm font-semibold text-neon bg-neon/10 rounded-full mb-4">Our Story</span>
+                <h2 class="text-4xl font-bold text-dark mb-6">Who We Are</h2>
+                <p class="text-xl text-gray-600 mb-6">
+                    Launched in 2025, MechOnGO started with a bold vision: to redefine automotive service through precision, transparency, and customer care. We’re a new but trusted name, serving drivers with certified technicians and cutting-edge facilities.
+                </p>
+                <p class="text-xl text-gray-600 mb-8">
+                    Our mission is to keep your vehicle performing at its peak while providing an experience that’s seamless and reliable. We use OEM-grade parts, advanced diagnostics, and a customer-first approach to exceed expectations.
+                </p>
+                <a href="{% url 'signup' %}" class="bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-neon">
+                    Schedule Service
+                </a>
+            </div>
+            <div class="lg:w-1/2">
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl parallax-image">
+                    <img src="{% static 'img/mechonGO.png' %}" alt="MechOnGO Team" class="w-full h-auto object-cover">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Milestones Section -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="inline-block px-4 py-2 text-sm font-semibold text-neon bg-neon/10 rounded-full mb-4">Our Journey</span>
+            <h2 class="text-4xl font-bold text-dark mb-6">Key Milestones</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:shadow-neon transition-all duration-300">
+                <h3 class="text-2xl font-bold text-dark mb-2">Founded</h3>
+                <p class="text-gray-600">MechOnGO launched with a single garage in Service City.</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:shadow-neon transition-all duration-300">
+                <h3 class="text-2xl font-bold text-dark mb-2">Certified</h3>
+                <p class="text-gray-600">Earned ASE certification for our team of technicians.</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:shadow-neon transition-all duration-300">
+                <h3 class="text-2xl font-bold text-dark mb-2">Innovated</h3>
+                <p class="text-gray-600">Introduced advanced diagnostics and a 5-year warranty program.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

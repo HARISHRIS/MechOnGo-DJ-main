@@ -1,0 +1,178 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}OTP Verification - Start Job | MechOnGO{% endblock %}
+{% block footer %}{% endblock %}
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    .gradient-bg {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    .alert {
+        transition: opacity 0.3s ease;
+        opacity: 0;
+    }
+    .alert.show {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="min-h-screen gradient-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 animate__animated animate__fadeIn">
+    <div class="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-lg max-w-md w-full mx-6 border border-gray-200/50">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <img src="{% static 'img/mechonGO.png' %}" alt="MechOnGO Logo" class="h-12 mx-auto mb-4 logo-img">
+            <h2 class="text-3xl font-bold text-teal-800 tracking-tight">Verify OTP to Start Job</h2>
+            <p class="mt-2 text-sm text-gray-600">For {{ service_request.customer.get_full_name }}</p>
+            <p class="mt-1 text-sm text-gray-600">Phone: {{ mobile_number }}</p>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert mb-6 p-4 rounded-lg text-sm text-center {% if message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %} show">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Form -->
+        <form method="POST" action="{% url 'verify_otp' service_request.id %}" class="space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{{ action }}">
+            {% if otp_sent %}
+                <!-- OTP Input -->
+                <div>
+                    <label for="otp" class="block text-sm font-semibold text-gray-700 mb-2">Enter OTP</label>
+                    <input type="text" id="otp" name="otp" maxlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-gray-900 placeholder-gray-400" placeholder="Enter 6-digit OTP" required>
+                    <p class="mt-1 text-xs text-gray-500">Enter the 6-digit code sent to the customer</p>
+                </div>
+                <!-- Verify Button -->
+                <button type="submit" name="verify_otp" class="w-full flex items-center justify-center px-6 py-3 text-base font-medium rounded-xl text-white bg-teal-600 hover:bg-teal-700 transition card-hover">
+                    <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Verify OTP
+                </button>
+            {% else %}
+                <!-- Send OTP Button -->
+                <button type="submit" name="send_otp" id="send-otp-btn" class="w-full flex items-center justify-center px-6 py-3 text-base font-medium rounded-xl text-white bg-teal-600 hover:bg-teal-700 transition card-hover">
+                    <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Send OTP to Customer
+                </button>
+            {% endif %}
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if not otp_sent %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sendOtpBtn = document.getElementById('send-otp-btn');
+        sendOtpBtn.addEventListener('click', function() {
+            sendOtpBtn.disabled = true;
+            sendOtpBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            sendOtpBtn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sending...
+            `;
+        });
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('Geolocation permission granted:', {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    });
+                },
+                function(error) {
+                    alert('Please enable location services to proceed.');
+                    console.error('Geolocation error:', error.message, error.code);
+                    sendOtpBtn.disabled = false;
+                    sendOtpBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    sendOtpBtn.innerHTML = `
+                        <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        Send OTP to Customer
+                    `;
+                },
+                { enableHighAccuracy: true }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser.');
+            console.error('Geolocation not supported');
+        }
+    });
+</script>
+{% endif %}
+{% if otp_sent %}
+<script>
+    let socket = null;
+    try {
+        socket = new WebSocket('ws://' + window.location.host + '/ws/mechanic/location/{{ service_request.mechanic.id }}/');
+        const jobId = {{ job_id }};
+
+        socket.onopen = function(e) {
+            console.log('WebSocket connection established for job ID:', jobId);
+            navigator.geolocation.watchPosition(
+                function(position) {
+                    const locationData = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        job_id: jobId
+                    };
+                    socket.send(JSON.stringify(locationData));
+                    console.log('Sent location:', locationData);
+                },
+                function(error) {
+                    console.error('Geolocation error:', error.message, error.code);
+                    socket.send(JSON.stringify({ error: 'Geolocation error: ' + error.message }));
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        };
+
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            if (data.error) {
+                console.error('WebSocket error:', data.error);
+            } else {
+                console.log('WebSocket message received:', data);
+            }
+        };
+
+        socket.onclose = function(e) {
+            console.log('WebSocket connection closed:', e.reason);
+        };
+
+        socket.onerror = function(e) {
+            console.error('WebSocket error:', e);
+        };
+    } catch (error) {
+        console.error('WebSocket initialization error:', error);
+    }
+</script>
+{% endif %}
+{% endblock %}

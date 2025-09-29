@@ -1,0 +1,289 @@
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block title %}MechOnGO | Payments & Billing{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<main class="pt-20">
+    <!-- Customer Navigation -->
+    <nav class="bg-white shadow-sm mb-8">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex space-x-6">
+                    <a href="{% url 'customer_dashboard' %}" class="text-dark hover:text-neon font-medium {% if request.path == '/customer/dashboard/' %}border-b-2 border-primary{% endif %}">Dashboard</a>
+                    <a href="{% url 'book_service' %}" class="text-dark hover:text-neon font-medium {% if request.path == '/customer/book-service/' %}border-b-2 border-primary{% endif %}">Book Service</a>
+                    <a href="{% url 'track_service' %}" class="text-dark hover:text-neon font-medium {% if request.path == '/customer/track-service/' %}border-b-2 border-primary{% endif %}">Track Service</a>
+                    <a href="{% url 'order_history' %}" class="text-dark hover:text-neon font-medium {% if request.path == '/customer/order-history/' %}border-b-2 border-primary{% endif %}">Order History</a>
+                    <a href="{% url 'payment_billing' %}" class="text-dark hover:text-neon font-medium {% if request.path == '/customer/payment-billing/' %}border-b-2 border-primary{% endif %}">Payments</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-12 max-w-7xl">
+        <div class="mb-12 animate-fade-in">
+            <h1 class="text-4xl font-bold text-dark mb-4">Payments & Billing</h1>
+            <p class="text-lg text-gray-600">Manage your invoices, payments, and payment methods with ease.</p>
+        </div>
+
+        <!-- Form Errors -->
+        {% if payment_form.errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6 mb-8 shadow-sm" role="alert">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-red-800">There were errors with your submission</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for field in payment_form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in payment_form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Pending Booked Services -->
+        <div class="bg-white shadow rounded-2xl mb-12 tilt-card" data-tilt>
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h3 class="text-xl font-semibold text-dark">Pending Booked Services</h3>
+                <p class="mt-2 text-sm text-gray-500">View your pending service bookings.</p>
+            </div>
+            <div class="bg-white overflow-hidden">
+                {% if pending_services %}
+                    <ul class="divide-y divide-gray-200">
+                        {% for service in pending_services %}
+                            <li>
+                                <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition duration-300">
+                                    <div>
+                                        <p class="text-sm font-medium text-dark">{{ service.issue_description }}</p>
+                                        <p class="text-sm text-gray-500">Vehicle: {{ service.vehicle_make }} {{ service.vehicle_model }} ({{ service.vehicle_year }})</p>
+                                        <p class="text-sm text-gray-500">Preferred Date: {{ service.preferred_datetime|date:"F d, Y H:i" }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-dark">₹{{ service.estimated_cost|default:"TBD" }}</p>
+                                        {% with invoice=service.jobs.first.invoices.first %}
+                                            {% if invoice and invoice.status == 'pending' %}
+                                                <form method="post" class="mt-2">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="invoice_id" value="{{ invoice.id }}">
+                                                    <select name="payment_method_id" class="form-select mb-2" required>
+                                                        <option value="">Select Payment Method</option>
+                                                        {% for method in payment_methods %}
+                                                            <option value="{{ method.id }}">{{ method.card_type|title }} ending in {{ method.last_four }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <button type="submit" name="pay_invoice" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-lg text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neon">
+                                                        Pay Now
+                                                    </button>
+                                                </form>
+                                            {% elif invoice and invoice.status == 'paid' %}
+                                                <p class="text-sm text-green-600">Paid on {{ invoice.paid_at|date:"F d, Y" }}</p>
+                                                <a href="#" class="mt-2 inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded-lg text-dark bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neon">
+                                                    View Receipt
+                                                </a>
+                                            {% else %}
+                                                <p class="text-sm text-gray-600">Invoice Pending</p>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="px-6 py-4 text-sm text-gray-500">No pending services found.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Invoice List -->
+        <div class="bg-white shadow rounded-2xl mb-12 tilt-card" data-tilt>
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h3 class="text-xl font-semibold text-dark">Recent Invoices</h3>
+                <p class="mt-2 text-sm text-gray-500">View and pay your outstanding invoices.</p>
+            </div>
+            <div class="bg-white overflow-hidden">
+                {% if invoices %}
+                    <ul class="divide-y divide-gray-200">
+                        {% for invoice in invoices %}
+                            <li>
+                                <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition duration-300">
+                                    <div>
+                                        <p class="text-sm font-medium text-dark">Invoice #{{ invoice.invoice_number }}</p>
+                                        <p class="text-sm text-gray-500">{{ invoice.job.service_request.issue_description }}</p>
+                                        <p class="text-sm text-gray-500">Date: {{ invoice.issued_at|date:"F d, Y" }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-dark">₹{{ invoice.amount }}</p>
+                                        {% if invoice.status == 'pending' or invoice.status == 'overdue' %}
+                                            <p class="text-sm {% if invoice.status == 'overdue' %}text-red-600{% else %}text-gray-600{% endif %}">Due: {{ invoice.due_date|date:"F d, Y" }}</p>
+                                            <form method="post" class="mt-2">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="invoice_id" value="{{ invoice.id }}">
+                                                <select name="payment_method_id" class="form-select mb-2" required>
+                                                    <option value="">Select Payment Method</option>
+                                                    {% for method in payment_methods %}
+                                                        <option value="{{ method.id }}">{{ method.card_type|title }} ending in {{ method.last_four }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <button type="submit" name="pay_invoice" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-lg text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neon">
+                                                    Pay Now
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <p class="text-sm text-green-600">Paid on {{ invoice.paid_at|date:"F d, Y" }}</p>
+                                            <a href="#" class="mt-2 inline-flex items-center px-3 py-1 border border-gray-300 text-xs font-medium rounded-lg text-dark bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neon">
+                                                View Receipt
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="px-6 py-4 text-sm text-gray-500">No invoices found.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white shadow rounded-2xl tilt-card" data-tilt>
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h3 class="text-xl font-semibold text-dark">Payment Methods</h3>
+                <p class="mt-2 text-sm text-gray-500">Manage your saved payment methods.</p>
+            </div>
+            <div class="px-6 py-5">
+                {% if payment_methods %}
+                    <div class="space-y-4">
+                        {% for method in payment_methods %}
+                            <div class="flex items-center justify-between border-b border-gray-200 pb-4">
+                                <div class="flex items-center">
+                                    <i class="fab fa-cc-{{ method.card_type }} text-{% if method.card_type == 'visa' %}primary{% else %}red-600{% endif %} text-2xl mr-3"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-dark">{{ method.card_type|title }} ending in {{ method.last_four }}</p>
+                                        <p class="text-sm text-gray-500">Expires: {{ method.expiry_date }}</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="text-sm text-red-600 hover:text-red-800 remove-payment" data-id="{{ method.id }}">Remove</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-gray-500">No payment methods saved.</p>
+                {% endif %}
+                <div class="mt-6">
+                    <button type="button" id="add-payment-method" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neon">
+                        Add Payment Method
+                    </button>
+                    <form method="post" id="payment-form" class="hidden mt-4 bg-gray-50 p-6 rounded-lg">
+                        {% csrf_token %}
+                        <input type="hidden" name="add_payment" value="1">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for field in payment_form %}
+                                <div class="{% if field.name == 'cardholder_name' %}md:col-span-2{% endif %}">
+                                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-dark">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <p class="text-red-600 text-sm">{{ field.errors.as_text }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-4 flex justify-end space-x-4">
+                            <button type="button" id="cancel-payment-form" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-dark hover:bg-gray-50">Cancel</button>
+                            <button type="submit" class="px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-blue-700">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Vanilla Tilt for cards
+        VanillaTilt.init(document.querySelectorAll('.tilt-card'), {
+            max: 15,
+            speed: 400,
+            glare: true,
+            'max-glare': 0.3,
+        });
+
+        // Toggle payment method form
+        const addPaymentButton = document.getElementById('add-payment-method');
+        const paymentForm = document.getElementById('payment-form');
+        const cancelButton = document.getElementById('cancel-payment-form');
+
+        addPaymentButton.addEventListener('click', () => {
+            paymentForm.classList.toggle('hidden');
+        });
+
+        cancelButton.addEventListener('click', () => {
+            paymentForm.classList.add('hidden');
+            paymentForm.reset();
+        });
+
+        // Handle Remove Payment Method buttons
+        const removeButtons = document.querySelectorAll('.remove-payment');
+        removeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (confirm('Are you sure you want to remove this payment method?')) {
+                    const methodId = button.dataset.id;
+                    // TODO: Implement AJAX call to delete payment method
+                    button.closest('.flex').remove();
+                    alert('Payment method removed successfully.');
+                }
+            });
+        });
+
+        // Format card number input
+        const cardNumberInput = document.getElementById('id_card_number');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                let parts = [];
+                for (let i = 0; i < value.length; i += 4) {
+                    parts.push(value.substring(i, i + 4));
+                }
+                e.target.value = parts.join(' ');
+            });
+        }
+
+        // Format expiry date input
+        const expiryDateInput = document.getElementById('id_expiry_date');
+        if (expiryDateInput) {
+            expiryDateInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // Restrict CVV to numbers only
+        const cvvInput = document.getElementById('id_cvv');
+        if (cvvInput) {
+            cvvInput.addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/[^0-9]/gi, '');
+            });
+        }
+    });
+</script>
+{% endblock %}
