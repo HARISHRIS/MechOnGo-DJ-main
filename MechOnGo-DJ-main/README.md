@@ -149,6 +149,6 @@ The below screenshot is from customer
 
 **Author**
 
-   - Ariharan K C
-   - ariharankc@gmail.com.com
-   - [LinkedIn](https://www.linkedin.com/in/ariharankc07/) | [GitHub](https://github.com/ARIHARAN-KC/) | [Portfolifo](https://ariharan-portfolifo.vercel.app/)
+   - Harish M
+   - hari44571@gmail.com
+   - 
